@@ -1,0 +1,15 @@
+# ===== IDE / Editor =====
+.idea/
+.vscode/
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Logs =====
+*.log
+
+# ===== Env (root level) =====
+.env
+.env.local
+.env.*.local
