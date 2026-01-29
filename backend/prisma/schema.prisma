@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Group {
+  id                 String   @id // google group id
+  email              String   @unique
+  name               String
+  directMembersCount Int
+  description        String?
+  createdAt          DateTime @default(now())
+
+  members GroupMember[]
+}
+
+model GroupMember {
+  id        String   @id @default(uuid())
+  groupId   String
+  email     String
+  role      String
+  fullName  String?
+  group     Group    @relation(fields: [groupId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([groupId, email])
+}
+
+enum UserRole {
+  student
+  teacher
+}
+
+model User {
+  id        String   @id @default(uuid())
+  googleId  String   @unique
+  email     String   @unique
+  name      String
+  role      UserRole
+  studentNo String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MajorGrade {
+  id          String    @id @db.VarChar(36) // 学科ID
+  majorName   String    @map("major_name") @db.VarChar(50) // 学科名称（groups.description）
+  enrollYear  Int       @map("enroll_year") // 入学年度
+  grade       Int // 学年
+  displayName String    @map("display_name") @db.VarChar(100) // 显示文字
+  flag        Boolean   @default(false) // 卒業管理flag
+  createdAt   DateTime  @default(now()) @map("created_at") // 登録日時
+  updatedAt   DateTime  @updatedAt @map("updated_at") // 更新日時
+  Student     Student[]
+}
+
+model Student {
+  studentNo String   @id @map("student_no") @db.VarChar(36) // 学籍番号(UUID v7)
+  name      String   @db.VarChar(100) // 学生氏名
+  majorId   String   @map("major_id") @db.VarChar(36) // 所属学科学年ID
+  isActive  Boolean  @default(true) @map("is_active") // 在籍フラグ
+  createdAt DateTime @default(now()) @map("created_at") // 登録日時
+  updatedAt DateTime @updatedAt @map("updated_at") // 更新日時
+
+  major            MajorGrade         @relation(fields: [majorId], references: [id])
+  AttendanceRecord AttendanceRecord[]
+
+  @@index([majorId])
+  @@index([isActive])
+}
+
+model AttendanceRecord {
+  id String @id @default(uuid())
+
+  majorId   String   @map("major_id")
+  studentNo String   @map("student_no")
+  student   Student  @relation(fields: [studentNo], references: [studentNo])
+  date      DateTime @db.Date
+
+  period1 AttendanceStatus @default(present)
+  period2 AttendanceStatus @default(present)
+  period3 AttendanceStatus @default(present)
+  period4 AttendanceStatus @default(present)
+
+  updatedBy String @map("updated_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([majorId, studentNo, date])
+  @@index([majorId, date])
+  @@map("attendance_records")
+}
+
+enum AttendanceStatus {
+  present // 出席
+  absence // 欠席
+  late // 遅刻
+  early_leave // 早退
+}

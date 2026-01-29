@@ -1,0 +1,20 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+/src/generated/prisma
+
+# IDE
+.idea/
+.vscode/
+
+# build
+dist/
+
+# Prisma
+prisma/migrations/
+
+# Google credentials
+service-account.json
+src/service-account.json
+src/google/
