@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createAttendanceSheet } from "../services/createAttendanceSheet.js";
-//import { requireAuth } from "../middlewares/requireAuth.js";
+//import { requireLogin } from "../middlewares/requireLogin.js";
 import { prisma } from "@/lib/prisma.js"
 
 const router = Router();
@@ -109,7 +109,7 @@ router.put("/update", async (req, res) => {
  * 出席簿作成
  * POST /attendance/create
  */
-router.post("/create"//, requireAuth
+router.post("/create"//, requireLogin
     , async (req, res) => {
     const { majorId, date } = req.body;
 

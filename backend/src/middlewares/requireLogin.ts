@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
  * 認証必須ミドルウェア
  * ・ログイン済みユーザーのみアクセス可能
  */
-export function requireAuth(
+export function requireLogin(
     req: Request,
     res: Response,
     next: NextFunction

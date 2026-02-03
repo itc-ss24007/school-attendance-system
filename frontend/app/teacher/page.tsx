@@ -37,7 +37,7 @@ export default function TeacherTopPage() {
 
                 {/* ヘッダー */}
                 <header className="flex justify-between items-center px-6 py-4 border-b">
-                    <h1 className="text-lg font-bold">
+                    <h1 className="text-xl font-bold">
                         出席管理システム（教師）
                     </h1>
 

@@ -1,7 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+
+type StudentInfo = {
+    studentNo: string;
+    name: string;
+    major: {
+        majorName: string;
+        grade: number;
+        displayName: string;
+    };
+};
 
 export default function StudentPage() {
     const { user, loading } = useAuth("student");
@@ -9,6 +19,30 @@ export default function StudentPage() {
     const [date, setDate] = useState("");
     const [type, setType] = useState("欠席");
     const [reason, setReason] = useState("");
+    const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
+    useEffect(() => {
+        if (!user) return;
+
+        const fetchStudentInfo = async () => {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/students/me`,
+                {
+                    credentials: "include",
+                }
+            );
+
+            if (!res.ok) {
+                console.error("学生情報取得失敗");
+                return;
+            }
+
+            const data = await res.json();
+            setStudentInfo(data);
+        };
+
+        fetchStudentInfo();
+    }, [user]);
+
 
     if (loading) {
         return <div className="p-10 text-center">読み込み中…</div>;
@@ -45,10 +79,10 @@ export default function StudentPage() {
 
                 {/* ヘッダー */}
                 <header className="flex justify-between items-center px-6 py-4 border-b">
-                    <h1 className="text-lg font-bold">出席管理システム</h1>
+                    <h1 className="text-xl font-bold">出席管理システム（学生）</h1>
 
                     <div className="flex items-center gap-4">
-                        <span className="text-sm">学生：{user.name}</span>
+
                         <button
                             onClick={handleLogout}
                             className="text-sm text-blue-600 hover:underline"
@@ -60,14 +94,15 @@ export default function StudentPage() {
 
                 {/* 学生情報 */}
                 <section className="px-6 py-6 border-b">
-                    {/* 🚧 这里后面可以从 user.groups 推导 */}
-                    <p className="text-sm mb-2">学科：ITスペシャリスト科</p>
-                    <p className="text-sm">学年：2年生</p>
-
-                    <p className="text-xs text-gray-500 mt-3 leading-relaxed">
-                        ※ 所属 Group 情報から判定<br />
-                        ※ データ内に「科」または「コース」を含む名称を使用（正規表現）
-                    </p>
+                    {studentInfo ? (
+                        <>
+                            <p className="mb-1">学生：{studentInfo.name}</p>
+                            <p className="mb-1">学科：{studentInfo.major.majorName}</p>
+                            <p>学年：{studentInfo.major.grade}年生</p>
+                        </>
+                    ) : (
+                        <p>学生情報を読み込み中...</p>
+                    )}
                 </section>
 
                 {/* 連絡フォーム */}
