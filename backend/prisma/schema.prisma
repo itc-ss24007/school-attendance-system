@@ -78,6 +78,7 @@ model Student {
   major            MajorGrade         @relation(fields: [majorId], references: [id])
   AttendanceRecord AttendanceRecord[]
   User             User[]
+  AbsenceReport    AbsenceReport[]
 
   @@index([majorId])
   @@index([isActive])
@@ -111,4 +112,26 @@ enum AttendanceStatus {
   absence // 欠席
   late // 遅刻
   early_leave // 早退
+}
+
+enum AbsenceType {
+  absence // 欠席
+  late // 遅刻
+  early_leave // 早退
+}
+
+model AbsenceReport {
+  id        String      @id @default(uuid())
+  studentNo String      @map("student_no")
+  date      DateTime // 対象日
+  type      AbsenceType // 欠席・遅刻・早退
+  reason    String?
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  student Student @relation(fields: [studentNo], references: [studentNo])
+
+  @@index([studentNo])
+  @@index([date])
+  @@map("absence_reports")
 }

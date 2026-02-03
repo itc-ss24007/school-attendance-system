@@ -12,7 +12,13 @@ type StudentInfo = {
         displayName: string;
     };
 };
-
+type AbsenceReport = {
+    id: string;
+    date: string;
+    type: "absence" | "late" | "early_leave";
+    reason?: string;
+    createdAt: string;
+};
 export default function StudentPage() {
     const { user, loading } = useAuth("student");
 
@@ -20,6 +26,11 @@ export default function StudentPage() {
     const [type, setType] = useState("欠席");
     const [reason, setReason] = useState("");
     const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
+
+    const [history, setHistory] = useState<AbsenceReport[]>([]);
+    const [showHistory, setShowHistory] = useState(false);
+    const [historyLoading, setHistoryLoading] = useState(false);
+
     useEffect(() => {
         if (!user) return;
 
@@ -52,14 +63,72 @@ export default function StudentPage() {
     if (!user) {
         return null;
     }
-    console.log("user object:", user);
-    const handleSubmit = () => {
-        console.log({
-            date,
-            type,
-            reason,
-        });
-        alert("送信しました（※ 仮実装）");
+    const handleSubmit = async () => {
+        if (!date) {
+            alert("日付を選択してください");
+            return;
+        }
+
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/students/absenceReport`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        date,
+                        type,   // ← 日本語のままでOK（backendで変換してる）
+                        reason,
+                    }),
+                }
+            );
+
+            if (!res.ok) {
+                const err = await res.json();
+                alert(err.message || "送信に失敗しました");
+                return;
+            }
+
+            alert("欠席連絡を送信しました");
+
+            // フォーム初期化
+            setDate("");
+            setType("欠席");
+            setReason("");
+
+            // 履歴表示中なら再取得
+            if (showHistory) {
+                fetchHistory();
+            }
+        } catch (e) {
+            alert("通信エラーが発生しました");
+        }
+    };
+    const fetchHistory = async () => {
+        setHistoryLoading(true);
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/students/absenceReport`,
+                {
+                    credentials: "include",
+                }
+            );
+
+            if (!res.ok) {
+                throw new Error();
+            }
+
+            const data = await res.json();
+            setHistory(data);
+            setShowHistory(true);
+        } catch {
+            alert("履歴の取得に失敗しました");
+        } finally {
+            setHistoryLoading(false);
+        }
     };
 
     const handleLogout = async () => {
@@ -160,11 +229,65 @@ export default function StudentPage() {
                             送信する
                         </button>
 
-                        <button className="text-blue-600 hover:underline text-sm">
+                        <button
+                            onClick={fetchHistory}
+                            className="text-blue-600 hover:underline text-sm"
+                        >
                             過去の連絡履歴を見る
                         </button>
                     </div>
                 </section>
+                {/* ===== 過去の連絡履歴 ===== */}
+                {showHistory && (
+                    <section className="px-6 py-6 border-t mt-6">
+                        <h3 className="font-bold mb-4">過去の連絡履歴</h3>
+
+                        {historyLoading && (
+                            <p className="text-sm">読み込み中...</p>
+                        )}
+
+                        {!historyLoading && history.length === 0 && (
+                            <p className="text-sm text-gray-500">
+                                連絡履歴はありません
+                            </p>
+                        )}
+
+                        {!historyLoading && history.length > 0 && (
+                            <table className="w-full text-sm border">
+                                <thead className="bg-gray-100">
+                                <tr>
+                                    <th className="border px-2 py-1">日付</th>
+                                    <th className="border px-2 py-1">種別</th>
+                                    <th className="border px-2 py-1">理由</th>
+                                    <th className="border px-2 py-1">送信日時</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {history.map((h) => (
+                                    <tr key={h.id}>
+                                        <td className="border px-2 py-1">
+                                            {new Date(h.date).toLocaleDateString()}
+                                        </td>
+                                        <td className="border px-2 py-1">
+                                            {h.type === "absence"
+                                                ? "欠席"
+                                                : h.type === "late"
+                                                    ? "遅刻"
+                                                    : "早退"}
+                                        </td>
+                                        <td className="border px-2 py-1">
+                                            {h.reason || "-"}
+                                        </td>
+                                        <td className="border px-2 py-1">
+                                            {new Date(h.createdAt).toLocaleString()}
+                                        </td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </section>
+                )}
             </div>
         </main>
     );
