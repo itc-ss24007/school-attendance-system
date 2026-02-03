@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import AttendanceTop from "./attendance/AttendanceTop";
+import MajorManage  from "./major/MajorManage";
+import { useAuth } from "@/hooks/useAuth";
 
 /**
  * 教師トップページ
@@ -14,17 +16,13 @@ export default function TeacherTopPage() {
     const [activeTab, setActiveTab] = useState<
         "major" | "attendance" | "sync"
     >("major");
-
-    // 仮の教師情報（後で API から取得）
-    const teacher = {
-        name: "佐藤 太郎",
-    };
-
+    const { user, loading } = useAuth("teacher");
+    if (loading) return null;
     /**
      * ログアウト処理
      */
     const handleLogout = async () => {
-        await fetch("http://localhost:5000/auth/logout", {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
             method: "POST",
             credentials: "include",
         });
@@ -43,7 +41,7 @@ export default function TeacherTopPage() {
 
                     <div className="flex items-center gap-4">
                         <span className="text-sm">
-                            教師：{teacher.name}
+                            教師：{user!.name}
                         </span>
                         <button
                             onClick={handleLogout}
@@ -99,7 +97,7 @@ function TabButton({
     return (
         <button
             onClick={onClick}
-            className={`flex-1 py-3 text-sm font-medium border-b-2 transition
+            className={`flex-1 py-3 text-lg font-medium border-b-2 transition
                 ${
                 active
                     ? "border-blue-600 text-blue-600"
@@ -115,29 +113,7 @@ function TabButton({
    以下は各機能の仮コンポーネント
    =============================== */
 
-/**
- * クラス管理（仮）
- * ・在学中クラス一覧
- * ・卒業済み設定
- */
-function MajorManage() {
-    return (
-        <div>
-            <h2 className="font-bold text-lg mb-4">
-                班级管理
-            </h2>
 
-            <p className="text-sm text-gray-600 mb-4">
-                在学中のクラスを管理し、卒業済みに設定できます。
-            </p>
-
-            {/* 今後ここに班级一覧を表示 */}
-            <div className="text-gray-400 text-sm">
-                ※ 現在は未実装
-            </div>
-        </div>
-    );
-}
 
 /**
  * データ同期（仮）

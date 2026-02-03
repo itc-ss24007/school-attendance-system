@@ -1,6 +1,6 @@
 import express from "express";
 import {prisma} from "@/lib/prisma.js"
-import passport from "passport";
+import {requireTeacher} from "@/middlewares/requireTeacher.js";
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const router = express.Router();
  * ・デフォルト：在学中のみ
  * ・includeGraduated=true の場合は卒業済みも含む
  */
-router.get("/", async (req, res) => {
+router.get("/",requireTeacher, async (req, res) => {
     const includeGraduated =
         req.query.includeGraduated === "true";
 
@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
 /**
  * 班级の卒業フラグ更新（前台操作）
  */
-router.patch("/:id/graduated", async (req, res) => {
+router.patch("/:id/graduated", requireTeacher,async (req, res) => {
     const { id } = req.params;
     const { graduated } = req.body;
 

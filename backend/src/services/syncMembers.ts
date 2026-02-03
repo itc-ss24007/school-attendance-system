@@ -12,8 +12,8 @@ export async function syncGroupMembers() {
 
     // 除外する Group ID
     const EXCLUDED_GROUP_IDS = new Set([
-        "00rjefff0hzf3wu",
-        "03znysh721ocn1s",
+        "00rjefff0hzf3wu",//すべての卒業生(本科) 2008年度から
+        "03znysh721ocn1s",//すべての卒業生(留学過程)
     ]);
 
     try {
