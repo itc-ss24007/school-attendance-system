@@ -49,7 +49,7 @@ export default function AttendanceTop() {
     useEffect(() => {
         const fetchMajors = async () => {
             try {
-                const res = await fetch("http://localhost:5000/major", {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/major`, {
                     credentials: "include",
                 });
                 const data = await res.json();
@@ -65,7 +65,7 @@ export default function AttendanceTop() {
     const fetchTodayAttendance = async (id: string) => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:5000/attendance/today?majorId=${id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/attendance/today?majorId=${id}`, {
                 credentials: "include",
             });
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -90,7 +90,7 @@ export default function AttendanceTop() {
     const handleCreateAttendance = async () => {
         if (!majorId) return;
         try {
-            const res = await fetch("http://localhost:5000/attendance/create", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/attendance/create`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -122,7 +122,7 @@ export default function AttendanceTop() {
     const handleUpdateAttendance = async () => {
         setIsSaving(true);
         try {
-            const res = await fetch("http://localhost:5000/attendance/update", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/attendance/update`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
