@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx --env-file=.env src/index.ts",
-    "start": "tsx src/index.ts",
+    "build": "prisma generate && tsc && tsc-alias",
+    "start": "node dist/index.js",
     "sync:groups": "tsx --env-file=.env src/scripts/sync-groups.ts",
     "sync:members": "tsx --env-file=.env src/scripts/sync-group-members.ts"
   },
@@ -36,6 +37,7 @@
     "@types/passport": "^1.0.17",
     "@types/passport-google-oauth20": "^2.0.17",
     "prisma": "^6.19.2",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.9.3"
   }
 }
