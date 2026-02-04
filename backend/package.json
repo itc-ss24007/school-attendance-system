@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx --env-file=.env src/index.ts",
+    "start": "tsx src/index.ts",
     "sync:groups": "tsx --env-file=.env src/scripts/sync-groups.ts",
     "sync:members": "tsx --env-file=.env src/scripts/sync-group-members.ts"
   },
