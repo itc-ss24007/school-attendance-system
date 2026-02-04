@@ -3,6 +3,7 @@
 import { useEffect,useState } from "react";
 import AttendanceTop from "./attendance/AttendanceTop";
 import MajorManage  from "./major/MajorManage";
+import SyncPage from "@/teacher/sync/SyncPage";
 import { useAuth } from "@/hooks/useAuth";
 
 /**
@@ -109,31 +110,3 @@ function TabButton({
     );
 }
 
-/* ===============================
-   以下は各機能の仮コンポーネント
-   =============================== */
-
-
-
-/**
- * データ同期（仮）
- * ・Google データ同期
- */
-function SyncPage() {
-    return (
-        <div>
-            <h2 className="font-bold text-lg mb-4">
-                数据更新
-            </h2>
-
-            <p className="text-sm text-gray-600 mb-4">
-                Google データとの同期を行います。
-            </p>
-
-            {/* 今後ここに同期ボタン */}
-            <div className="text-gray-400 text-sm">
-                ※ 管理者用機能（未実装）
-            </div>
-        </div>
-    );
-}

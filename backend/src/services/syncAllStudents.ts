@@ -5,13 +5,12 @@ import { syncStudentsByMajor } from "@/services/syncStudentsByMajor.js";
  * 全学科学年（クラス）の学生一覧を同期する
  *
  * ・DBに存在する学科学年を対象とする
- * ・group_member に登録されている学生を Student に反映
- * ・初回データ生成・検証用スクリプト
+ * ・卒業済み（flag = true）は除外
+ * ・group_member を元に Student を同期
  */
-async function main() {
+export async function syncAllStudents() {
     /**
      * ① 同期対象の学科学年を取得
-     * 卒業済みフラグがある場合は除外
      */
     const majors = await prisma.majorGrade.findMany({
         where: { flag: false },
@@ -31,15 +30,3 @@ async function main() {
 
     console.log("🎉 全クラスの学生同期が完了しました");
 }
-
-/**
- * スクリプト実行
- */
-main()
-    .catch((e) => {
-        console.error("❌ 学生同期中にエラーが発生しました", e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });

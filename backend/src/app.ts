@@ -6,6 +6,7 @@ import authRoutes from "@/routes/auth.routes.js";
 import majorRoutes from "@/routes/major.js";
 import attendanceRoutes from "@/routes/attendance.js"
 import studentRoutes from "@/routes/student.js"
+import syncRouter from "@/routes/sync.js"
 import cors from "cors";
 
 const app = express();
@@ -41,5 +42,6 @@ app.use('/auth', authRoutes);
 app.use('/major', majorRoutes);
 app.use('/attendance',attendanceRoutes);
 app.use("/students", studentRoutes);
+app.use("/sync", syncRouter);
 
 export default app;

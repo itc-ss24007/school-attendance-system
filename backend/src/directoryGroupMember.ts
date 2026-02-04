@@ -29,7 +29,7 @@ async function getGroupMembers() {
         const res = await directory.members.list({
             // groupKey: '03j2qqm346deifl',
             // groupKey: '01y810tw0kucdbc',
-            groupKey: '01ci93xb0wu05mm',
+            groupKey: '00kgcv8k1hve6c6',
         });
 
         /**
