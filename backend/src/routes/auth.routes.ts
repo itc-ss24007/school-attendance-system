@@ -22,10 +22,10 @@ router.get(
 router.get(
     "/google/callback",
     passport.authenticate("google", {
-        failureRedirect: "http://localhost:3000/",
+        failureRedirect: process.env.FRONTEND_URL ||"http://localhost:3000/",
     }),
     (req, res) => {
-        res.redirect("http://localhost:3000/");
+        res.redirect(process.env.FRONTEND_URL ||"http://localhost:3000/");
     }
 );
 
