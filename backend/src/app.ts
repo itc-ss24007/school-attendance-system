@@ -8,8 +8,16 @@ import attendanceRoutes from "@/routes/attendance.js"
 import studentRoutes from "@/routes/student.js"
 import syncRouter from "@/routes/sync.js"
 import cors from "cors";
+import {RedisStore} from "connect-redis";
+import { createClient } from "redis";
 
 const app = express();
+
+const redisClient = createClient({
+    url: process.env.REDIS_URL,
+});
+
+redisClient.connect().catch(console.error);
 
 app.use(
     cors({
@@ -36,6 +44,10 @@ app.use(
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 1000 * 60 * 60 * 24, // 1日
         },
+        store: new RedisStore({
+            client: redisClient,
+            prefix: "session:",
+        }),
     })
 );
 

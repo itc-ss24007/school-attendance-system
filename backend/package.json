@@ -17,6 +17,7 @@
   "packageManager": "pnpm@10.20.0",
   "type": "module",
   "dependencies": {
+    "connect-redis": "^9.0.0",
     "cors": "^2.8.5",
     "db": "link:src/generated/prisma",
     "dotenv": "^17.2.3",
@@ -25,7 +26,8 @@
     "google-auth-library": "^10.5.0",
     "googleapis": "^168.0.0",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "redis": "^5.10.0"
   },
   "devDependencies": {
     "@prisma/client": "^6.19.2",
