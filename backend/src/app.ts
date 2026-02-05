@@ -29,9 +29,11 @@ app.use(
         secret: process.env.SESSION_SECRET!,
         resave: false,
         saveUninitialized: false,
+        proxy:true,
         cookie: {
             httpOnly: true,
-            secure: false, // 本番では true（https）
+            secure: process.env.NODE_ENV === "production", // 本番では true（https）
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge: 1000 * 60 * 60 * 24, // 1日
         },
     })
