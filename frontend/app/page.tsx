@@ -10,7 +10,7 @@ export default function HomePage() {
         const checkLogin = async () => {
             try {
                 const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/app/me`,
+                    `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
                     //'http://localhost:5000/auth/me',
                     {
                         credentials: "include", // ★ 重要
