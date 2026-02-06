@@ -31,8 +31,9 @@ export default function TeacherTopPage() {
     };
 
     return (
-        <main className="min-h-screen bg-gray-100 flex justify-center py-10">
-            <div className="bg-white w-full max-w-4xl rounded-xl shadow-lg">
+        <main className="min-h-screen bg-background text-foreground flex justify-center py-10">
+
+            <div className="bg-background w-full max-w-4xl rounded-xl shadow-lg">
 
                 {/* ヘッダー */}
                 <header className="flex justify-between items-center px-6 py-4 border-b">
