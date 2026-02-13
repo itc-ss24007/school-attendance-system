@@ -42,7 +42,7 @@ app.use(
             httpOnly: true,
             secure: process.env.NODE_ENV === "production", // 本番では true（https）
             sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-            maxAge: 1000 * 60 * 60 * 24, // 1日
+            maxAge: 1000 * 60 * 60 * 2, // 2時間
         },
         store: new RedisStore({
             client: redisClient,

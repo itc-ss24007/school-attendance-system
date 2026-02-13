@@ -18,7 +18,7 @@ export default function HomePage() {
                 );
 
                 // 未登录
-                if (res.status === 401) {
+                if (!res.ok) {
                     router.replace("/login");
                     return;
                 }

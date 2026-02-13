@@ -38,12 +38,24 @@ export default function AttendanceTop() {
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false); // 保存按钮状态
 
-    const getTodayString = () => new Date().toISOString().slice(0, 10);
-    const todayLabel = new Date().toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-    });
+    // 1. 初期値の取得を「日本時間」に固定する
+    const getTodayString = () => {
+        // 日本標準時(JST)の現在日付を "YYYY-MM-DD" で取得
+        return new Intl.DateTimeFormat("ja-JP", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            timeZone: "Asia/Tokyo",
+        }).format(new Date()) // ここだけは「今」を取得するために必要ですが、変換には使いません
+            .replace(/\//g, "-");  // "2026/02/10" -> "2026-02-10"
+    };
+
+// 選択日付（デフォルト：今日）
+    const [selectedDate, setSelectedDate] = useState(getTodayString());
+
+// 2. 表示用ラベルは Date を介さず、文字列置換で作成する
+    const todayLabel = selectedDate.replace(/-/g, "/");
+
 
     // クラス一覧取得
     useEffect(() => {
@@ -62,12 +74,13 @@ export default function AttendanceTop() {
     }, []);
 
     // 出席簿取得 (GET /attendance/today)
-    const fetchTodayAttendance = async (id: string) => {
+    const fetchTodayAttendance = async (id: string, date: string) => {
         setLoading(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/attendance/today?majorId=${id}`, {
-                credentials: "include",
-            });
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/attendance?majorId=${id}&date=${date}`,
+                { credentials: "include" }
+            );
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             const data = await res.json();
 
@@ -94,11 +107,11 @@ export default function AttendanceTop() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ majorId, date: getTodayString() }),
+                body: JSON.stringify({ majorId, date: selectedDate }),
             });
             if (res.status === 409 || res.ok) {
                 if (res.ok) alert("出席簿を作成しました。");
-                await fetchTodayAttendance(majorId);
+                await fetchTodayAttendance(majorId,selectedDate);
             }
         } catch (err) {
             console.error("出席簿作成エラー:", err);
@@ -126,7 +139,7 @@ export default function AttendanceTop() {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ majorId, records }),
+                body: JSON.stringify({ majorId, date: selectedDate,records }),
             });
             if (res.ok) {
                 alert("出席簿を保存しました。");
@@ -142,25 +155,49 @@ export default function AttendanceTop() {
 
     return (
         <div className="p-6 max-w-5xl mx-auto">
-            {/* クラス選択 */}
+            {/* クラス,日付選択 */}
             <div className="mb-8 bg-white p-4 rounded shadow-sm border">
-                <label className="block text-sm font-semibold mb-2 text-gray-600">クラスを選択してください</label>
+                <label className="block text-sm font-semibold mb-2 text-gray-600">
+                    日付を選択
+                </label>
+                <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => {
+                        const date = e.target.value;
+                        setSelectedDate(date);
+                        if (majorId) fetchTodayAttendance(majorId, date);
+                    }}
+                    className="border border-gray-300 mb-2 rounded px-4 py-2"
+                />
+                <label className="block text-sm font-semibold mb-2 text-gray-600">
+                    クラスを選択してください
+                </label>
+
                 <select
                     value={majorId}
                     onChange={(e) => {
                         const id = e.target.value;
                         setMajorId(id);
                         setRecords([]);
-                        if (id) fetchTodayAttendance(id);
+
+                        // クラス選択時：
+                        // 選択中の日付(selectedDate)の出席簿を取得する
+                        if (id) fetchTodayAttendance(id, selectedDate);
                     }}
                     className="border border-gray-300 rounded px-4 py-2 w-full max-w-[520px] bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"
                 >
                     <option value="">▼ クラスを選択</option>
                     {majors.map((major) => (
-                        <option key={major.id} value={major.id}>{major.displayName}</option>
+                        <option key={major.id} value={major.id}>
+                            {major.displayName}
+                        </option>
                     ))}
                 </select>
+
             </div>
+
+
 
             {majorId && (
                 <div className="border-t pt-6">

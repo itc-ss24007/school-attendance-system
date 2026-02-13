@@ -45,13 +45,13 @@ export async function createAttendanceSheet(
     /**
      * ③ 出席レコード生成データ作成
      */
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // const today = new Date();
+    // today.setHours(0, 0, 0, 0);
     await prisma.attendanceRecord.createMany({
         data: students.map((s) => ({
             majorId,
             studentNo: s.studentNo,
-            date: today,
+            date: targetDate,
             updatedBy: teacherId,
             period1: AttendanceStatus.present,
             period2: AttendanceStatus.present,
