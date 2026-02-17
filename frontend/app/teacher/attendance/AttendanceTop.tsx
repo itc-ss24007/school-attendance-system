@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {Fragment, useEffect, useState} from "react";
 
 /**
  * 型定義
@@ -9,7 +9,11 @@ type Major = {
     id: string;
     displayName: string;
 };
-
+type AbsenceReport = {
+    type: string;
+    reason: string | null;
+    createdAt: string;
+};
 type AttendanceRecord = {
     studentNo: string;
     studentName: string; // 后端 include 后返回的姓名
@@ -17,8 +21,10 @@ type AttendanceRecord = {
     period2: string;
     period3: string;
     period4: string;
+    hasAbsenceReport?: boolean;
+    absenceReports?: AbsenceReport[];
 };
-
+type PeriodKey = "period1" | "period2" | "period3" | "period4";
 // 后端 Enum 到 日文显示 的映射 (适配你的 Prisma Enum)
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
     present: { label: "出席", color: "text-green-600" },
@@ -37,6 +43,7 @@ export default function AttendanceTop() {
     const [hasAttendance, setHasAttendance] = useState(false);
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false); // 保存按钮状态
+    const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
 
     // 1. 初期値の取得を「日本時間」に固定する
     const getTodayString = () => {
@@ -119,7 +126,7 @@ export default function AttendanceTop() {
     };
 
     // ★ 状态切换逻辑 (前台修改)
-    const toggleStatus = (studentNo: string, period: keyof AttendanceRecord) => {
+    const toggleStatus = (studentNo: string, period: PeriodKey) => {
         setRecords(prev => prev.map(r => {
             if (r.studentNo === studentNo) {
                 const currentStatus = r[period];
@@ -238,27 +245,77 @@ export default function AttendanceTop() {
                                 </thead>
                                 <tbody className="divide-y text-gray-600">
                                 {records.map((r) => (
+                                    <Fragment key={r.studentNo}>
                                     <tr key={r.studentNo} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-4 py-3 font-mono text-xs">{r.studentNo}</td>
-                                        <td className="px-4 py-3 text-sm font-medium">{r.studentName}</td>
+                                        <td className="px-4 py-3 font-mono text-base">{r.studentNo}</td>
+                                        <td className="px-4 py-3 text-base font-medium">
+                                            <div className="flex items-center gap-2">
+                                                <span>{r.studentName}</span>
+                                                {r.hasAbsenceReport && (
+                                                    <button
+                                                        onClick={() =>
+                                                            setExpandedStudent(
+                                                                expandedStudent === r.studentNo ? null : r.studentNo
+                                                            )
+                                                        }
+                                                        className="text-sm bg-orange-100 text-orange-600 px-2 py-0.5 rounded"
+                                                    >
+                                                        欠席届あり
+                                                    </button>
+                                                )}
+
+                                            </div>
+                                        </td>
                                         {[1, 2, 3, 4].map((i) => {
-                                            const field = `period${i}` as keyof AttendanceRecord;
+                                            const field = `period${i}` as PeriodKey;
                                             const status = r[field];
                                             return (
                                                 <td
                                                     key={i}
                                                     onClick={() => toggleStatus(r.studentNo, field)}
-                                                    className={`px-4 py-3 text-center cursor-pointer select-none border-x text-sm transition-all hover:bg-gray-100 ${STATUS_MAP[status]?.color}`}
+                                                    className={`px-4 py-3 text-center cursor-pointer select-none border-x text-base transition-all hover:bg-gray-100 ${STATUS_MAP[status]?.color}`}
                                                 >
                                                     {STATUS_MAP[status]?.label || "-"}
                                                 </td>
                                             );
                                         })}
                                     </tr>
+                                        {expandedStudent === r.studentNo &&
+                                            r.absenceReports &&
+                                            r.absenceReports.length > 0 && (
+                                                <tr className="bg-orange-50">
+                                                    <td colSpan={6} className="px-6 py-3">
+                                                        <div className="space-y-2 text-sm">
+                                                            {r.absenceReports.map((report, idx) => (
+                                                                <div
+                                                                    key={idx}
+                                                                    className="bg-white border rounded p-2 shadow-sm"
+                                                                >
+                                                                    <div className="font-semibold text-gray-700">
+                                                                        種類：
+                                                                        {STATUS_MAP[report.type]?.label || report.type}
+                                                                    </div>
+                                                                    <div className="text-gray-600">
+                                                                        理由：
+                                                                        {report.reason || "（未入力）"}
+                                                                    </div>
+                                                                    <div className="text-gray-400 text-xs">
+                                                                        送信時間：
+                                                                        {new Date(report.createdAt).toLocaleString("ja-JP", {
+                                                                            timeZone: "Asia/Tokyo"
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                    </Fragment>
                                 ))}
                                 </tbody>
                             </table>
-                            <div className="bg-gray-50 p-3 text-[10px] text-gray-400 border-t">
+                            <div className="bg-gray-50 p-3 text-[12px] text-gray-400 border-t">
                                 ※ 枠内をクリックすると状態が切り替わります：出席 → 遅刻 → 早退 → 欠席
                             </div>
                         </div>

@@ -69,6 +69,29 @@ router.get("/", requireTeacher,async (req, res) => {
         const targetDate = normalizeDate(dateStr);
 
         //console.log('targetDate', targetDate);
+        //欠席届を取得
+        const reports = await prisma.absenceReport.findMany({
+            where: {
+                date: targetDate,
+            },
+            select: {
+                studentNo: true,
+                type: true,
+                reason: true,
+                createdAt: true,
+            },
+        });
+
+        // studentNo → reports[]
+        const reportMap = new Map<string, typeof reports>();
+
+        for (const r of reports) {
+            if (!reportMap.has(r.studentNo)) {
+                reportMap.set(r.studentNo, []);
+            }
+            reportMap.get(r.studentNo)!.push(r);
+        }
+
 
         // 出席データ取得（学生名もJOIN）
         const records = await prisma.attendanceRecord.findMany({
@@ -89,16 +112,24 @@ router.get("/", requireTeacher,async (req, res) => {
         });
 
         // フロント用に整形
-        const formattedRecords = records.map((record) => ({
-            studentNo: record.studentNo,
-            studentName: record.student?.name || "未登録",
-            period1: record.period1,
-            period2: record.period2,
-            period3: record.period3,
-            period4: record.period4,
-            majorId: record.majorId,
-            date: record.date,
-        }));
+        const formattedRecords = records.map((record) => {
+            const studentReports = reportMap.get(record.studentNo) || [];
+
+            return {
+                studentNo: record.studentNo,
+                studentName: record.student?.name || "未登録",
+                period1: record.period1,
+                period2: record.period2,
+                period3: record.period3,
+                period4: record.period4,
+                majorId: record.majorId,
+                date: record.date,
+
+                absenceReports: studentReports,
+                hasAbsenceReport: studentReports.length > 0,
+            };
+        });
+
 
         res.json({
             date: targetDate.toISOString().slice(0, 10),
