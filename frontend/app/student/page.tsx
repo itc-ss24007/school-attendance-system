@@ -19,10 +19,11 @@ type AbsenceReport = {
     reason?: string;
     createdAt: string;
 };
+const today = new Date().toLocaleDateString("sv-SE");
 export default function StudentPage() {
     const { user, loading } = useAuth("student");
 
-    const [date, setDate] = useState("");
+    const [date, setDate] = useState(today);
     const [type, setType] = useState("欠席");
     const [reason, setReason] = useState("");
     const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
@@ -184,6 +185,7 @@ export default function StudentPage() {
                         <input
                             type="date"
                             value={date}
+                            min={today}
                             onChange={(e) => setDate(e.target.value)}
                             className="border rounded px-3 py-2 w-60"
                         />
