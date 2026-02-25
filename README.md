@@ -44,6 +44,72 @@
 
 ---
 
+
+## 🔧 導入手順
+
+### 1.リポジトリのクローン
+
+```bash
+git clone https://github.com/itc-ss24007/school-attendance-system.git
+cd school-attendance-system
+```
+### 2.インストール手順（バックエンド）
+
+~~~bash
+cd backend
+npm install
+~~~
+`backend` ディレクトリに `.env` ファイルを作成し、以下を設定してください。
+~~~env
+DATABASE_URL=your_database_url
+SESSION_SECRET=your_session_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_PRIVATE_KEY=your_private_key
+GOOGLE_ADMIN_EMAIL=your_admin_email
+REDIS_URL=your_redis_url
+~~~
+
+### 3.インストール手順（フロントエンド）
+
+~~~bash
+cd frontend
+npm run dev
+~~~
+`frontend` ディレクトリに `.env.local` を作成し、以下を設定してください。
+
+~~~env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+~~~
+
+### 4.起動方法
+
+- バックエンド起動
+
+~~~bash
+cd backend
+npm run dev
+~~~
+
+- フロントエンド起動
+
+~~~bash
+cd frontend
+npm run dev
+~~~
+
+### 5.動作確認
+
+ブラウザで以下にアクセスしてください：
+
+~~~text
+http://localhost:3000
+~~~
+- Googleログイン画面が表示される
+- ログイン後、役割に応じた画面へ遷移する
+
+---
+
 ## 📊 システムの特徴
 - 教師・学生のロール別アクセス制御
 - 学年・学科ごとの学生管理
