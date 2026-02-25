@@ -110,6 +110,34 @@ http://localhost:3000
 
 ---
 
+## 🖥️ 画面イメージ
+
+### ① ログイン画面
+![ログイン画面](./screenshot/login.png)
+
+---
+
+### ② 学生画面
+![学生画面](./screenshot/student.jpg)
+
+---
+
+### ③ ToDoリスト画面
+![クラス管理画面](./screenshot/class.png)
+
+---
+
+### ④ 教師出席管理画面
+![出席簿新規制作](./screenshot/attendance-add.png)
+![出席管理画面](./screenshot/attendance-list.jpg)
+
+---
+
+### ⑤ データ同期画面
+![データ同期](./screenshot/data.png)
+
+---
+
 ## 📊 システムの特徴
 - 教師・学生のロール別アクセス制御
 - 学年・学科ごとの学生管理
@@ -122,3 +150,5 @@ http://localhost:3000
 - 学生側の出席状況の閲覧
 - 出席統計（クラス別、学生別、期間指定）の表示
 - 通知機能の追加
+---
+
